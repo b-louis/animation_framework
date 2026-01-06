@@ -1,37 +1,62 @@
 #include <simpleAnimation/Timeline.hpp>
-
-
-void Timeline::addKeyframe(int &var, int value, int frame)
+#include <simpleAnimation/Keyframes.hpp>
+using namespace simpleAnimation;
+void Timeline::addKeyframe(int *var, int value, int frame)
 {
-    auto componentKeyframes = keyframes[var];
-    if(componentKeyframes)
+    Keyframes varKeyframes;
+    // check if keyframes for this var exist
+    if(keyframes.find(var) == keyframes.end())
     {
-        keyframe k = componentKeyframes.find(frame);
-        if (!k) // before first keyframe
-        {
-            keyframe newK = keyframe(frame, value);
-            newK.next = componentKeyframes.first();
-            componentKeyframes.first() = newK;
-            return;
-        }
-        keyframe oldNextK = k ? k.next() : nullptr;
-        keyframe newK = keyframe(frame, value);
-        k.next = newK;
-        newK.next = oldNextK;
+        keyframes[var] = Keyframes();
+        varKeyframes = keyframes[var];
     }
-    else
-    {
-        keyframes[var] = keyframes(var);
-        keyframe newK = keyframe(frame, value);
-        keyframes[var].first() = newK;
-    }
+    keyframes[var].addKeyframe(frame, value);
+    return;
 }
 
 void Timeline::step()
 {
     if (cursor < length)
     {
+        for (auto const& [var, kf] : keyframes)
+        {
+            if (kDeltas[var].targetFrame == cursor)
+            {
+                *var = kf.getKeyframes().at(cursor);
+                auto beginK = kf.getKeyframes().upper_bound(cursor+1);
+                // initialize variable to first keyframe value
+                kDeltas[var].delta = (float)(beginK->second - *var) / (float)(beginK->first - cursor);
+                if (beginK != kf.getKeyframes().end())
+                {
+                    kDeltas[var].targetFrame = beginK->first;
+                }                
+            }else if (cursor <kDeltas[var].targetFrame)
+            {
+                *var += kDeltas[var].delta;
+            }
+            
+        }
         cursor++;
+    }
+    
+}
+
+void Timeline::init()
+{
+
+    for (auto const& [var, kf] : keyframes)
+    {
+        auto beginK = kf.getKeyframes().upper_bound(0);
+        /*
+        // initialize variable to first keyframe value
+        if (beginK->first == 0)
+        {
+            *var = beginK->second;
+        }
+        */
+        kDeltas[var].delta = (float)(beginK->second - *var) / (float)(beginK->first - cursor);
+        kDeltas[var].targetFrame = beginK->first;
+
     }
     
 }

@@ -9,28 +9,19 @@ namespace simpleAnimation {
 
 class Keyframes {
 public:
-    struct Keyframe {
-        int time;
-        int value;
-    };
 
     Keyframes() = default;
     ~Keyframes() = default;
 
     void addKeyframe(int time, int value);
-    void removeKeyframe(int time);
-    void clear();
-
-    int evaluate(int time) const;
-    int getDuration() const;
-    bool isEmpty() const;
-
-    const std::map<int&,Keyframe>& getKeyframes() const;
+    const std::map<int,int>& getKeyframes() const
+    {
+        return keyframes;
+    };
 
 private:
-    std::vector<Keyframe> keyframes;
-
-    int findKeyframeIndex(int time) const;
+    // The first int is the frame and the second int is the value
+    std::map<int,int> keyframes;
 };
 
 } // namespace simpleAnimation
