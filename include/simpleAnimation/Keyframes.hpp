@@ -5,24 +5,25 @@
 #include <map>
 #include <cmath>
 
-namespace simpleAnimation {
-
-class Keyframes {
-public:
-
-    Keyframes() = default;
-    ~Keyframes() = default;
-
-    void addKeyframe(int time, int value);
-    const std::map<int,int>& getKeyframes() const
+namespace simpleAnimation
+{
+    typedef std::map<int, int> KeyframeMap;
+    class Keyframes
     {
-        return keyframes;
-    };
+    public:
+        Keyframes() = default;
+        ~Keyframes() = default;
 
-private:
-    // The first int is the frame and the second int is the value
-    std::map<int,int> keyframes;
-};
+        void addKeyframe(int time, int value);
+        const std::map<int, int> &getKeyframes() const
+        {
+            return keyframes;
+        };
+
+    private:
+        // The first int is the frame and the second int is the value
+        std::map<int, int> keyframes;
+    };
 
 } // namespace simpleAnimation
 
